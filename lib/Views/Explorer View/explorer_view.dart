@@ -28,7 +28,7 @@ class _ExplorerViewState extends State<ExplorerView> {
     return Scaffold(
         key: scaffoldKey,
         appBar: CustomAppBar(
-          text: 'Explored',
+          text: 'Explorer',
           onTapMenu: () {
             scaffoldKey.currentState!.openDrawer();
           },

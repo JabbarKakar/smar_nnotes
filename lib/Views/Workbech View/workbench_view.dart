@@ -109,51 +109,57 @@ class _WorkbenchViewState extends State<WorkbenchView> {
                     ),
                   ),
                   10.ht,
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      DecorationButton(
-                        onTap: () {},
-                        icon: Icons.refresh,
-                      ),
-                      DecorationButton(
-                        onTap: () {
-                          workbenchProvider.toggleBold();
-                        },
-                        icon: Icons.format_bold,
-                      ),
-                      DecorationButton(
-                        onTap: () {
-                          workbenchProvider.textDecoration();
-                        },
-                        icon: Icons.format_underline,
-                      ),
-                      DecorationButton(
-                        onTap: () {
-                          workbenchProvider.changeColor1();
-                        },
-                        icon: Icons.brush,
-                      ),
-                      DecorationButton(
-                        onTap: () {},
-                        icon: Icons.list,
-                      ),
-                      DecorationButton(
-                        onTap: () {},
-                        icon: Icons.more_horiz,
-                      ),
-                      DecorationButton(
-                        onTap: () {},
-                        icon: Icons.ac_unit,
-                      ),
-                    ],
-                  ),
+
                 ],
               );
             },
           ),
         ),
       )),
+      floatingActionButton: Padding(
+        padding: EdgeInsets.only(left: 30.w),
+        child: Consumer<WorkbenchProvider>(builder: (context, workbenchProvider, child) {
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              DecorationButton(
+                onTap: () {},
+                icon: Icons.refresh,
+              ),
+              DecorationButton(
+                onTap: () {
+                  workbenchProvider.toggleBold();
+                },
+                icon: Icons.format_bold,
+              ),
+              DecorationButton(
+                onTap: () {
+                  workbenchProvider.textDecoration();
+                },
+                icon: Icons.format_underline,
+              ),
+              DecorationButton(
+                onTap: () {
+                  workbenchProvider.changeColor1();
+                },
+                icon: Icons.brush,
+              ),
+              DecorationButton(
+                onTap: () {},
+                icon: Icons.list,
+              ),
+              DecorationButton(
+                onTap: () {},
+                icon: Icons.more_horiz,
+              ),
+              DecorationButton(
+                onTap: () {},
+                icon: Icons.ac_unit,
+              ),
+            ],
+          );
+        },),
+      ),
     );
   }
 }

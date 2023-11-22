@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smar_notes/Utils/app_constants.dart';
 import 'package:smar_notes/Views/Profile%20VIew/profile_view.dart';
 import 'package:smar_notes/Widgets/custom_app_bar.dart';
@@ -19,8 +20,10 @@ final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
 class AdditionalView2 extends StatefulWidget {
   final String title;
-  const AdditionalView2(
-      {super.key, required this.title, });
+  const AdditionalView2({
+    super.key,
+    required this.title,
+  });
 
   @override
   State<AdditionalView2> createState() => _AdditionalView2State();
@@ -28,6 +31,53 @@ class AdditionalView2 extends StatefulWidget {
 
 class _AdditionalView2State extends State<AdditionalView2> {
   List<Widget> customWhiteButtons = [];
+
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+      loadFolders();
+    });
+  }
+
+  void loadFolders() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String?>? folderTitlesNullable = prefs.getStringList('folders');
+
+    if (folderTitlesNullable != null) {
+      setState(() {
+        customWhiteButtons = folderTitlesNullable
+            .whereType<String>()
+            .map((title) => _buildFolderWidget(title))
+            .toList();
+      });
+    }
+  }
+
+  void saveFolders() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String> folderTitles = customWhiteButtons
+        .map((widget) {
+          if (widget is Padding && widget.child is CustomWhiteButton) {
+            return (widget.child as CustomWhiteButton).text;
+          }
+          return null;
+        })
+        .whereType<String>()
+        .toList();
+    prefs.setStringList('folders', folderTitles);
+  }
+
+  Widget _buildFolderWidget(String title) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 3.h),
+      child: CustomWhiteButton(
+        text: title,
+        onTap: () {},
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -70,7 +120,7 @@ class _AdditionalView2State extends State<AdditionalView2> {
                     ),
                     SmallCustomButton(
                       title: 'Search',
-                      onTap: (){},
+                      onTap: () {},
                     ),
                   ],
                 ),
@@ -78,21 +128,27 @@ class _AdditionalView2State extends State<AdditionalView2> {
                 CustomWhiteButton(
                   text: 'Test GmbH',
                   onTap: () {
-                    Get.to(() => const AdditionalView3(title: 'Test GmbH',));
+                    Get.to(() => const AdditionalView3(
+                          title: 'Test GmbH',
+                        ));
                   },
                 ),
                 15.ht,
                 CustomWhiteButton(
                   text: 'United Testing AG',
                   onTap: () {
-                    Get.to(() => const AdditionalView3(title: 'United Testing AG',));
+                    Get.to(() => const AdditionalView3(
+                          title: 'United Testing AG',
+                        ));
                   },
                 ),
                 15.ht,
                 CustomWhiteButton(
                   text: 'Test Inc.',
                   onTap: () {
-                    Get.to(() => const AdditionalView3(title: 'Test Inc.',));
+                    Get.to(() => const AdditionalView3(
+                          title: 'Test Inc.',
+                        ));
                   },
                 ),
                 ListView.builder(
@@ -100,21 +156,26 @@ class _AdditionalView2State extends State<AdditionalView2> {
                   physics: const NeverScrollableScrollPhysics(),
                   shrinkWrap: true,
                   itemBuilder: (context, index) {
-                    return  Padding(
+                    return Padding(
                       padding: EdgeInsets.only(top: 10.h),
                       child: InkWell(
-                        onTap: (){
-                          Get.to(() => const AdditionalView3(title: 'Test Inc.',));
-                        },
+                          onTap: () {
+                            Get.to(() => const AdditionalView3(
+                                  title: 'Test Inc.',
+                                ));
+                          },
+                          onLongPress: (){
+                            showDeleteConfirmationDialog(index);
+                          },
                           child: customWhiteButtons[index]),
                     );
-                  },),
+                  },
+                ),
                 20.ht,
                 SizedBox(
                   width: 110.w,
                   child: SmallCustomButton(
-                    child: const Icon(
-                        Icons.add_circle_outline_sharp),
+                    child: const Icon(Icons.add_circle_outline_sharp),
                     onTap: () {
                       showAlertDialog(context);
                     },
@@ -132,7 +193,6 @@ class _AdditionalView2State extends State<AdditionalView2> {
       ),
     );
   }
-
 
   Future<void> showAlertDialog(BuildContext context) async {
     TextEditingController titleController = TextEditingController();
@@ -168,7 +228,7 @@ class _AdditionalView2State extends State<AdditionalView2> {
                         style: const TextStyle(color: blackColor),
                         decoration: const InputDecoration(
                           filled: true,
-                          hintText: "Please Enter file name",
+                          hintText: "Enter folder name",
                           fillColor: whiteColor,
                           border: InputBorder.none,
                         ),
@@ -187,25 +247,34 @@ class _AdditionalView2State extends State<AdditionalView2> {
                       ),
                       SmallCustomButton(
                         onTap: () {
-                          setState(() {
-                            customWhiteButtons.add(
-                              Padding(
-                                padding: EdgeInsets.symmetric(vertical: 3.h),
-                                child: CustomWhiteButton(
-                                  text: titleController.text.trim(),
-                                  onTap: () {  },
-                                ),
-                              ),
+                          String newTitle = titleController.text.trim();
+
+                          if (!customWhiteButtons.any((button) {
+                            if (button is Padding &&
+                                button.child is CustomWhiteButton) {
+                              return (button.child as CustomWhiteButton).text ==
+                                  newTitle;
+                            }
+                            return false;
+                          })) {
+                            setState(() {
+                              customWhiteButtons
+                                  .add(_buildFolderWidget(newTitle));
+                            });
+                            saveFolders();
+                            Get.back();
+                          } else {
+                            AppConstants.errorToast(
+                              message:
+                                  "Button with title '$newTitle' already exists",
                             );
-                          });
-                          Get.back();
+                          }
+
                         },
                         title: 'Create',
                       ),
                     ],
                   ),
-                  // Display the CustomWhiteButton widgets in the dialog
-
                 ],
               ),
             ),
@@ -214,5 +283,40 @@ class _AdditionalView2State extends State<AdditionalView2> {
       },
     );
   }
+
+
+  void showDeleteConfirmationDialog(int index) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: whiteColor,
+          title: Text('Delete Folder'),
+          content: Text('Are you sure you want to delete this folder?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                // Remove the folder from the list
+                setState(() {
+                  customWhiteButtons.removeAt(index);
+                });
+
+                // Save the updated list to SharedPreferences
+                saveFolders();
+
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );}
 
 }

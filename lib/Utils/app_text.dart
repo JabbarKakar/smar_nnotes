@@ -12,7 +12,7 @@ class Text30 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 190.w,
+      width: 220.w,
       decoration: BoxDecoration(
         border: border == null
             ? const Border(
@@ -43,7 +43,12 @@ class Text20 extends StatelessWidget {
   final Color? color;
   final TextAlign? textAlign;
   final FontWeight? fontWeight;
-  const Text20({super.key, required this.text, this.color, this.textAlign, this.fontWeight});
+  const Text20(
+      {super.key,
+      required this.text,
+      this.color,
+      this.textAlign,
+      this.fontWeight});
 
   @override
   Widget build(BuildContext context) {

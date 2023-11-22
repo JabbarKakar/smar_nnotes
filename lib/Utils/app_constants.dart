@@ -10,27 +10,27 @@ class AppConstants {
   //Todo for password validation
   static String? passwordValidation(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Please enter a password';
+      return 'Password must consist of at least 8 characters (including numbers, capitals, and special characters)';
     }
     // Check password length
     if (value.length < 8) {
-      return 'At least 8 characters long';
+      return 'Password must consist of at least 8 characters (including numbers, capitals, and special characters)';
     }
     // Check for at least one number
     if (!RegExp(r'[0-9]').hasMatch(value)) {
-      return 'At least one number';
+      return 'Password must consist of at least 8 characters (including numbers, capitals, and special characters)';
     }
     // Check for at least one special character
     if (!RegExp(r'[!@#\$%^&*(),.?":{}|<>]').hasMatch(value)) {
-      return 'At least one special character';
+      return 'Password must consist of at least 8 characters (including numbers, capitals, and special characters)';
     }
 
     if (!RegExp(r'[A-Z]').hasMatch(value)) {
-      return 'Password must include at least one capital letter';
+      return 'Password must consist of at least 8 characters (including numbers, capitals, and special characters)';
     }
 
     if (!RegExp(r'[a-z]').hasMatch(value)) {
-      return 'Password must include at least one small letter';
+      return 'Password must consist of at least 8 characters (including numbers, capitals, and special characters)';
     }
 
     return null; // Password is valid
