@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smar_notes/Utils/app_constants.dart';
 import 'package:smar_notes/Views/Profile%20VIew/profile_view.dart';
 import 'package:smar_notes/Widgets/custom_app_bar.dart';
@@ -30,7 +29,7 @@ class AdditionalView1 extends StatefulWidget {
 }
 
 class _AdditionalView1State extends State<AdditionalView1> {
-  List<Widget> customWhiteButtons = [];
+  List<String> customWhiteButtons = [];
 
   bool isSearch = false;
   TextEditingController searchController = TextEditingController();
@@ -42,8 +41,6 @@ class _AdditionalView1State extends State<AdditionalView1> {
   //     loadFolders();
   //   });
   // }
-
-
 
   // void loadFolders() async {
   //   SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -73,34 +70,38 @@ class _AdditionalView1State extends State<AdditionalView1> {
   //   prefs.setStringList('folders', folderTitles);
   // }
 
-  Widget _buildFolderWidget(String title) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 3.h),
-      child: CustomWhiteButton(
-        text: title,
-        onTap: () {},
-      ),
-    );
-  }
+  // Widget _buildFolderWidget(String title) {
+  //   return Padding(
+  //     padding: EdgeInsets.symmetric(vertical: 3.h),
+  //     child: CustomWhiteButton(
+  //       text: title,
+  //       onTap: () {},
+  //     ),
+  //   );
+  // }
+  //
+  // List<Widget> getFilteredButtons() {
+  //   if (!isSearch) {
+  //     return customWhiteButtons;
+  //   }
+  //
+  //   String searchTerm = searchController.text.toLowerCase();
+  //   List<Widget> filteredButtons = customWhiteButtons
+  //       .where((widget) =>
+  //   widget is Padding &&
+  //       widget.child is CustomWhiteButton &&
+  //       (widget.child as CustomWhiteButton)
+  //           .text
+  //           .toLowerCase()
+  //           .contains(searchTerm))
+  //       .toList();
+  //
+  //   return filteredButtons;
+  // }
 
-  List<Widget> getFilteredButtons() {
-    if (!isSearch) {
-      return customWhiteButtons;
-    }
-
-    String searchTerm = searchController.text.toLowerCase();
-    List<Widget> filteredButtons = customWhiteButtons
-        .where((widget) =>
-    widget is Padding &&
-        widget.child is CustomWhiteButton &&
-        (widget.child as CustomWhiteButton)
-            .text
-            .toLowerCase()
-            .contains(searchTerm))
-        .toList();
-
-    return filteredButtons;
-  }
+  // TextEditingController titleController = TextEditingController();
+  String newTitle = '';
+  String searchText = '';
 
   @override
   Widget build(BuildContext context) {
@@ -147,8 +148,9 @@ class _AdditionalView1State extends State<AdditionalView1> {
                       searchController: searchController,
                       onChanged: (value) {
                         setState(() {
-                          isSearch = value.isNotEmpty;
+                          newTitle = value.toLowerCase(); // Convert to lowercase for case-insensitive search
                         });
+
                       },
                     ),
                     SmallCustomButton(
@@ -189,57 +191,37 @@ class _AdditionalView1State extends State<AdditionalView1> {
                 //   },
                 // ),
                 // 7.ht,
-                customWhiteButtons.isNotEmpty ?
-                SizedBox(
-                  child: getFilteredButtons().isNotEmpty ?
-                  ListView.builder(
-                    itemCount: getFilteredButtons().length,
-                    physics: const NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    itemBuilder: (context, index) {
-                      return Padding(
-                        padding: EdgeInsets.only(top: 10.h),
-                        child: InkWell(
-                          onTap: () {
-                            // Get.to(() => const AdditionalView2(
-                            //   title: 'Private',
-                            // ));
-                          },
-                          onLongPress: () {
-                            Get.to(() => const AdditionalView2(
-                              title: 'Private',
-                            ));
-                            // showDeleteConfirmationDialog(index);
-                          },
-                          child: getFilteredButtons()[index],
-                        ),
-                      );
-                    },
-                  ) :
-                  ListView.builder(
-                    itemCount: customWhiteButtons.length,
-                    physics: const NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    itemBuilder: (context, index) {
-                      return Padding(
-                        padding: EdgeInsets.only(top: 10.h),
-                        child: InkWell(
-                            onTap: () {
-                              print(" 3 ");
-                              Get.to(() => const AdditionalView2(
+                customWhiteButtons.isNotEmpty
+                    ? ListView.builder(
+                        itemCount: customWhiteButtons.length,
+                        physics: const NeverScrollableScrollPhysics(),
+                        shrinkWrap: true,
+                        itemBuilder: (context, index) {
+                          print("customWhiteButtons  ========= ${customWhiteButtons.length}");
+                          bool isMatch = customWhiteButtons[index].toLowerCase().contains(newTitle);
+                          if (newTitle.isEmpty || isMatch) {
+                    print('This is if..........');
+                    return Padding(
+                      padding: EdgeInsets.only(top: 10.h),
+                      child: CustomWhiteButton(
+                        text: customWhiteButtons[index],
+                        onTap: () {
+                          Get.to(() => const AdditionalView2(
                                 title: 'Private',
                               ));
-                            },
-                            onLongPress: () {
-                              print(" 4 ");
-
-                              showDeleteConfirmationDialog(index);
-                            },
-                            child: customWhiteButtons[index]),
-                      );
-                    },
-                  ),
-                ) : Text20(text: 'Please create folder first'),
+                        },
+                        onLongPress: () {
+                          showDeleteConfirmationDialog(index);
+                        },
+                      ),
+                    );
+                          } else {
+                    print('This is else.............');
+                    return Container();
+                          }
+                        },
+                      )
+                    : Text20(text: 'Please create folder first'),
                 20.ht,
                 SizedBox(
                   width: 110.w,
@@ -316,19 +298,17 @@ class _AdditionalView1State extends State<AdditionalView1> {
                       ),
                       SmallCustomButton(
                         onTap: () {
-                          String newTitle = titleController.text.trim();
-
-                          if (!customWhiteButtons.any((button) {
-                            if (button is Padding &&
-                                button.child is CustomWhiteButton) {
-                              return (button.child as CustomWhiteButton).text ==
-                                  newTitle;
-                            }
+                          newTitle = titleController.text.trim();
+                          if (!customWhiteButtons.any((title) {
+                            // if (button is Padding &&
+                            //     button.n is CustomWhiteButton) {
+                            //   return (button.child as CustomWhiteButton).text ==
+                            //       newTitle;
+                            // }
                             return false;
                           })) {
                             setState(() {
-                              customWhiteButtons
-                                  .add(_buildFolderWidget(newTitle));
+                              customWhiteButtons.add(newTitle);
                             });
                             // saveFolders();
                             Get.back();

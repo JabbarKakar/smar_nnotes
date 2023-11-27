@@ -7,14 +7,16 @@ import '../Utils/app_text.dart';
 class CustomWhiteButton extends StatelessWidget {
   final String text;
   final void Function() onTap;
+  final void Function()? onLongPress;
   const CustomWhiteButton({
-    super.key, required this.text, required this.onTap,
+    super.key, required this.text, required this.onTap, this.onLongPress,
   });
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
+      onLongPress: onLongPress,
       child: Container(
         height: 57.h,
         width: double.infinity,
