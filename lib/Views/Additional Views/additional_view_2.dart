@@ -14,6 +14,7 @@ import '../../Widgets/custom_fab.dart';
 import '../../Widgets/custom_white_button.dart';
 import '../../Widgets/small_custom_button.dart';
 import '../Recording View/recording_view.dart';
+import 'additional_view_1.dart';
 import 'additional_view_3.dart';
 
 final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
@@ -31,42 +32,44 @@ class AdditionalView2 extends StatefulWidget {
 
 class _AdditionalView2State extends State<AdditionalView2> {
   List<Widget> customWhiteButtons = [];
+  bool isSearch = false;
+  TextEditingController searchController = TextEditingController();
 
-  @override
-  void initState() {
-    super.initState();
-    setState(() {
-      loadFolders();
-    });
-  }
-
-  void loadFolders() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String?>? folderTitlesNullable = prefs.getStringList('folders');
-
-    if (folderTitlesNullable != null) {
-      setState(() {
-        customWhiteButtons = folderTitlesNullable
-            .whereType<String>()
-            .map((title) => _buildFolderWidget(title))
-            .toList();
-      });
-    }
-  }
-
-  void saveFolders() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String> folderTitles = customWhiteButtons
-        .map((widget) {
-          if (widget is Padding && widget.child is CustomWhiteButton) {
-            return (widget.child as CustomWhiteButton).text;
-          }
-          return null;
-        })
-        .whereType<String>()
-        .toList();
-    prefs.setStringList('folders', folderTitles);
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   setState(() {
+  //     loadFolders();
+  //   });
+  // }
+  //
+  // void loadFolders() async {
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   List<String?>? folderTitlesNullable = prefs.getStringList('folders');
+  //
+  //   if (folderTitlesNullable != null) {
+  //     setState(() {
+  //       customWhiteButtons = folderTitlesNullable
+  //           .whereType<String>()
+  //           .map((title) => _buildFolderWidget(title))
+  //           .toList();
+  //     });
+  //   }
+  // }
+  //
+  // void saveFolders() async {
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   List<String> folderTitles = customWhiteButtons
+  //       .map((widget) {
+  //         if (widget is Padding && widget.child is CustomWhiteButton) {
+  //           return (widget.child as CustomWhiteButton).text;
+  //         }
+  //         return null;
+  //       })
+  //       .whereType<String>()
+  //       .toList();
+  //   prefs.setStringList('folders', folderTitles);
+  // }
 
   Widget _buildFolderWidget(String title) {
     return Padding(
@@ -76,6 +79,25 @@ class _AdditionalView2State extends State<AdditionalView2> {
         onTap: () {},
       ),
     );
+  }
+
+  List<Widget> getFilteredButtons() {
+    if (!isSearch) {
+      return customWhiteButtons;
+    }
+
+    String searchTerm = searchController.text.toLowerCase();
+    List<Widget> filteredButtons = customWhiteButtons
+        .where((widget) =>
+    widget is Padding &&
+        widget.child is CustomWhiteButton &&
+        (widget.child as CustomWhiteButton)
+            .text
+            .toLowerCase()
+            .contains(searchTerm))
+        .toList();
+
+    return filteredButtons;
   }
 
   @override
@@ -118,59 +140,126 @@ class _AdditionalView2State extends State<AdditionalView2> {
                         Get.back();
                       },
                     ),
+                    SearchTextField(
+                      isSearch: isSearch,
+                      searchController: searchController,
+                      onChanged: (value) {
+                        setState(() {
+                          isSearch = value.isNotEmpty;
+                        });
+                      },
+                    ),
                     SmallCustomButton(
                       title: 'Search',
-                      onTap: () {},
+                      onTap: () {
+                        setState(() {
+                          isSearch = !isSearch;
+                        });
+                      },
                     ),
                   ],
                 ),
                 25.ht,
-                CustomWhiteButton(
-                  text: 'Test GmbH',
-                  onTap: () {
-                    Get.to(() => const AdditionalView3(
-                          title: 'Test GmbH',
-                        ));
-                  },
-                ),
-                15.ht,
-                CustomWhiteButton(
-                  text: 'United Testing AG',
-                  onTap: () {
-                    Get.to(() => const AdditionalView3(
-                          title: 'United Testing AG',
-                        ));
-                  },
-                ),
-                15.ht,
-                CustomWhiteButton(
-                  text: 'Test Inc.',
-                  onTap: () {
-                    Get.to(() => const AdditionalView3(
-                          title: 'Test Inc.',
-                        ));
-                  },
-                ),
-                ListView.builder(
-                  itemCount: customWhiteButtons.length,
-                  physics: const NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
-                  itemBuilder: (context, index) {
-                    return Padding(
-                      padding: EdgeInsets.only(top: 10.h),
-                      child: InkWell(
+                // CustomWhiteButton(
+                //   text: 'Test GmbH',
+                //   onTap: () {
+                //     Get.to(() => const AdditionalView3(
+                //           title: 'Test GmbH',
+                //         ));
+                //   },
+                // ),
+                // 15.ht,
+                // CustomWhiteButton(
+                //   text: 'United Testing AG',
+                //   onTap: () {
+                //     Get.to(() => const AdditionalView3(
+                //           title: 'United Testing AG',
+                //         ));
+                //   },
+                // ),
+                // 15.ht,
+                // CustomWhiteButton(
+                //   text: 'Test Inc.',
+                //   onTap: () {
+                //     Get.to(() => const AdditionalView3(
+                //           title: 'Test Inc.',
+                //         ));
+                //   },
+                // ),
+
+                customWhiteButtons.isNotEmpty ?
+                SizedBox(
+                  child: getFilteredButtons().isNotEmpty ?
+                  ListView.builder(
+                    itemCount: getFilteredButtons().length,
+                    physics: const NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: EdgeInsets.only(top: 10.h),
+                        child: InkWell(
                           onTap: () {
+                            // Get.to(() => const AdditionalView2(
+                            //   title: 'Private',
+                            // ));
+                          },
+                          onLongPress: () {
                             Get.to(() => const AdditionalView3(
-                                  title: 'Test Inc.',
-                                ));
+                              title: 'Private',
+                            ));
+                            // showDeleteConfirmationDialog(index);
                           },
-                          onLongPress: (){
-                            showDeleteConfirmationDialog(index);
-                          },
-                          child: customWhiteButtons[index]),
-                    );
-                  },
-                ),
+                          child: getFilteredButtons()[index],
+                        ),
+                      );
+                    },
+                  ) :
+                  ListView.builder(
+                    itemCount: customWhiteButtons.length,
+                    physics: const NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: EdgeInsets.only(top: 10.h),
+                        child: InkWell(
+                            onTap: () {
+                              print(" 3 ");
+                              Get.to(() => const AdditionalView3(
+                                title: 'Private',
+                              ));
+                            },
+                            onLongPress: () {
+                              print(" 4 ");
+
+                              showDeleteConfirmationDialog(index);
+                            },
+                            child: customWhiteButtons[index]),
+                      );
+                    },
+                  ),
+                ) : Text20(text: 'Please create folder first'),
+
+
+                // ListView.builder(
+                //   itemCount: customWhiteButtons.length,
+                //   physics: const NeverScrollableScrollPhysics(),
+                //   shrinkWrap: true,
+                //   itemBuilder: (context, index) {
+                //     return Padding(
+                //       padding: EdgeInsets.only(top: 10.h),
+                //       child: InkWell(
+                //           onTap: () {
+                //             Get.to(() => const AdditionalView3(
+                //                   title: 'Test Inc.',
+                //                 ));
+                //           },
+                //           onLongPress: (){
+                //             showDeleteConfirmationDialog(index);
+                //           },
+                //           child: customWhiteButtons[index]),
+                //     );
+                //   },
+                // ),
                 20.ht,
                 SizedBox(
                   width: 110.w,
@@ -261,7 +350,7 @@ class _AdditionalView2State extends State<AdditionalView2> {
                               customWhiteButtons
                                   .add(_buildFolderWidget(newTitle));
                             });
-                            saveFolders();
+                            // saveFolders();
                             Get.back();
                           } else {
                             AppConstants.errorToast(
@@ -308,7 +397,7 @@ class _AdditionalView2State extends State<AdditionalView2> {
                 });
 
                 // Save the updated list to SharedPreferences
-                saveFolders();
+                // saveFolders();
 
                 Navigator.of(context).pop(); // Close the dialog
               },

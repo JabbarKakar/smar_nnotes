@@ -35,41 +35,43 @@ class _AdditionalView1State extends State<AdditionalView1> {
   bool isSearch = false;
   TextEditingController searchController = TextEditingController();
 
-  @override
-  void initState() {
-    super.initState();
-    setState(() {
-      loadFolders();
-    });
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   setState(() {
+  //     loadFolders();
+  //   });
+  // }
 
-  void loadFolders() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String?>? folderTitlesNullable = prefs.getStringList('folders');
 
-    if (folderTitlesNullable != null) {
-      setState(() {
-        customWhiteButtons = folderTitlesNullable
-            .whereType<String>()
-            .map((title) => _buildFolderWidget(title))
-            .toList();
-      });
-    }
-  }
 
-  void saveFolders() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String> folderTitles = customWhiteButtons
-        .map((widget) {
-          if (widget is Padding && widget.child is CustomWhiteButton) {
-            return (widget.child as CustomWhiteButton).text;
-          }
-          return null;
-        })
-        .whereType<String>()
-        .toList();
-    prefs.setStringList('folders', folderTitles);
-  }
+  // void loadFolders() async {
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   List<String?>? folderTitlesNullable = prefs.getStringList('folders');
+  //
+  //   if (folderTitlesNullable != null) {
+  //     setState(() {
+  //       customWhiteButtons = folderTitlesNullable
+  //           .whereType<String>()
+  //           .map((title) => _buildFolderWidget(title))
+  //           .toList();
+  //     });
+  //   }
+  // }
+  //
+  // void saveFolders() async {
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   List<String> folderTitles = customWhiteButtons
+  //       .map((widget) {
+  //         if (widget is Padding && widget.child is CustomWhiteButton) {
+  //           return (widget.child as CustomWhiteButton).text;
+  //         }
+  //         return null;
+  //       })
+  //       .whereType<String>()
+  //       .toList();
+  //   prefs.setStringList('folders', folderTitles);
+  // }
 
   Widget _buildFolderWidget(String title) {
     return Padding(
@@ -199,12 +201,15 @@ class _AdditionalView1State extends State<AdditionalView1> {
                         padding: EdgeInsets.only(top: 10.h),
                         child: InkWell(
                           onTap: () {
+                            // Get.to(() => const AdditionalView2(
+                            //   title: 'Private',
+                            // ));
+                          },
+                          onLongPress: () {
                             Get.to(() => const AdditionalView2(
                               title: 'Private',
                             ));
-                          },
-                          onLongPress: () {
-                            showDeleteConfirmationDialog(index);
+                            // showDeleteConfirmationDialog(index);
                           },
                           child: getFilteredButtons()[index],
                         ),
@@ -220,11 +225,14 @@ class _AdditionalView1State extends State<AdditionalView1> {
                         padding: EdgeInsets.only(top: 10.h),
                         child: InkWell(
                             onTap: () {
+                              print(" 3 ");
                               Get.to(() => const AdditionalView2(
                                 title: 'Private',
                               ));
                             },
                             onLongPress: () {
+                              print(" 4 ");
+
                               showDeleteConfirmationDialog(index);
                             },
                             child: customWhiteButtons[index]),
@@ -322,7 +330,7 @@ class _AdditionalView1State extends State<AdditionalView1> {
                               customWhiteButtons
                                   .add(_buildFolderWidget(newTitle));
                             });
-                            saveFolders();
+                            // saveFolders();
                             Get.back();
                           } else {
                             AppConstants.errorToast(
@@ -367,7 +375,7 @@ class _AdditionalView1State extends State<AdditionalView1> {
                 });
 
                 // Save the updated list to SharedPreferences
-                saveFolders();
+                // saveFolders();
 
                 Navigator.of(context).pop(); // Close the dialog
               },

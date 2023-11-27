@@ -8,6 +8,7 @@ import 'package:smar_notes/Views/Login%20View/login_view.dart';
 import 'package:smar_notes/Views/Workbech%20View/workbenck_provider/workbenck_provider.dart';
 
 import 'Hive/recording_model.dart';
+import 'Views/Explorer View/explorer_view.dart';
 import 'Views/Recording View/Provider/recording_provider.dart';
 
 Future<void> main() async {
@@ -39,7 +40,7 @@ class MyApp extends StatelessWidget {
             colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
             useMaterial3: true,
           ),
-          home: const LoginView(),
+          home: const ExplorerView(),
         ),
       ),
     );
