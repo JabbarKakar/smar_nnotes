@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smar_notes/Utils/app_constants.dart';
 import 'package:smar_notes/Views/Profile%20VIew/profile_view.dart';
 import 'package:smar_notes/Widgets/custom_app_bar.dart';
 import 'package:smar_notes/Widgets/main_body_container.dart';
-import 'package:smar_notes/Widgets/main_drawer.dart';
 
 import '../../Utils/app_colors.dart';
 import '../../Utils/app_text.dart';
 import '../../Widgets/custom_fab.dart';
 import '../../Widgets/custom_white_button.dart';
+import '../../Widgets/main_drawer.dart';
+import '../../Widgets/search_text_field.dart';
 import '../../Widgets/small_custom_button.dart';
 import '../Recording View/recording_view.dart';
-import 'additional_view_1.dart';
+import 'additional_view_2.dart';
 import 'additional_view_3.dart';
 
 final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
@@ -27,78 +27,25 @@ class AdditionalView2 extends StatefulWidget {
   });
 
   @override
-  State<AdditionalView2> createState() => _AdditionalView2State();
+  State<AdditionalView2> createState() => _AdditionalView1State();
 }
 
-class _AdditionalView2State extends State<AdditionalView2> {
-  List<Widget> customWhiteButtons = [];
+class _AdditionalView1State extends State<AdditionalView2> {
+  List<String> customWhiteButtons = [];
+  List<String> filteredButtons = [];
+
+  void filterButtons() {
+    setState(() {
+      filteredButtons = customWhiteButtons
+          .where((button) => button.toLowerCase().contains(newTitle))
+          .toList();
+    });
+  }
+
   bool isSearch = false;
   TextEditingController searchController = TextEditingController();
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   setState(() {
-  //     loadFolders();
-  //   });
-  // }
-  //
-  // void loadFolders() async {
-  //   SharedPreferences prefs = await SharedPreferences.getInstance();
-  //   List<String?>? folderTitlesNullable = prefs.getStringList('folders');
-  //
-  //   if (folderTitlesNullable != null) {
-  //     setState(() {
-  //       customWhiteButtons = folderTitlesNullable
-  //           .whereType<String>()
-  //           .map((title) => _buildFolderWidget(title))
-  //           .toList();
-  //     });
-  //   }
-  // }
-  //
-  // void saveFolders() async {
-  //   SharedPreferences prefs = await SharedPreferences.getInstance();
-  //   List<String> folderTitles = customWhiteButtons
-  //       .map((widget) {
-  //         if (widget is Padding && widget.child is CustomWhiteButton) {
-  //           return (widget.child as CustomWhiteButton).text;
-  //         }
-  //         return null;
-  //       })
-  //       .whereType<String>()
-  //       .toList();
-  //   prefs.setStringList('folders', folderTitles);
-  // }
-
-  Widget _buildFolderWidget(String title) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 3.h),
-      child: CustomWhiteButton(
-        text: title,
-        onTap: () {},
-      ),
-    );
-  }
-
-  List<Widget> getFilteredButtons() {
-    if (!isSearch) {
-      return customWhiteButtons;
-    }
-
-    String searchTerm = searchController.text.toLowerCase();
-    List<Widget> filteredButtons = customWhiteButtons
-        .where((widget) =>
-    widget is Padding &&
-        widget.child is CustomWhiteButton &&
-        (widget.child as CustomWhiteButton)
-            .text
-            .toLowerCase()
-            .contains(searchTerm))
-        .toList();
-
-    return filteredButtons;
-  }
+  String newTitle = '';
 
   @override
   Widget build(BuildContext context) {
@@ -106,14 +53,10 @@ class _AdditionalView2State extends State<AdditionalView2> {
       key: scaffoldKey,
       appBar: CustomAppBar(
         text: 'Explorer',
-        onTapMenu: () {
-          scaffoldKey.currentState!.openDrawer();
-        },
-        onTapProfile: () {
-          Get.to(() => const ProfileView());
-        },
+        onTapMenu: () => scaffoldKey.currentState!.openDrawer(),
+        onTapProfile: () => Get.to(() => const ProfileView()),
       ),
-      drawer: const MainDrawer(),
+        drawer: const MainDrawer(),
       body: MainBodyContainer(
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 15.w),
@@ -145,7 +88,8 @@ class _AdditionalView2State extends State<AdditionalView2> {
                       searchController: searchController,
                       onChanged: (value) {
                         setState(() {
-                          isSearch = value.isNotEmpty;
+                          newTitle = value.toLowerCase();
+                          filterButtons();
                         });
                       },
                     ),
@@ -160,106 +104,53 @@ class _AdditionalView2State extends State<AdditionalView2> {
                   ],
                 ),
                 25.ht,
-                // CustomWhiteButton(
-                //   text: 'Test GmbH',
-                //   onTap: () {
-                //     Get.to(() => const AdditionalView3(
-                //           title: 'Test GmbH',
-                //         ));
-                //   },
-                // ),
-                // 15.ht,
-                // CustomWhiteButton(
-                //   text: 'United Testing AG',
-                //   onTap: () {
-                //     Get.to(() => const AdditionalView3(
-                //           title: 'United Testing AG',
-                //         ));
-                //   },
-                // ),
-                // 15.ht,
-                // CustomWhiteButton(
-                //   text: 'Test Inc.',
-                //   onTap: () {
-                //     Get.to(() => const AdditionalView3(
-                //           title: 'Test Inc.',
-                //         ));
-                //   },
-                // ),
-
-                customWhiteButtons.isNotEmpty ?
-                SizedBox(
-                  child: getFilteredButtons().isNotEmpty ?
-                  ListView.builder(
-                    itemCount: getFilteredButtons().length,
-                    physics: const NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    itemBuilder: (context, index) {
-                      return Padding(
-                        padding: EdgeInsets.only(top: 10.h),
-                        child: InkWell(
-                          onTap: () {
-                            // Get.to(() => const AdditionalView2(
-                            //   title: 'Private',
-                            // ));
-                          },
-                          onLongPress: () {
-                            Get.to(() => const AdditionalView3(
-                              title: 'Private',
-                            ));
-                            // showDeleteConfirmationDialog(index);
-                          },
-                          child: getFilteredButtons()[index],
-                        ),
-                      );
-                    },
-                  ) :
-                  ListView.builder(
-                    itemCount: customWhiteButtons.length,
-                    physics: const NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    itemBuilder: (context, index) {
-                      return Padding(
-                        padding: EdgeInsets.only(top: 10.h),
-                        child: InkWell(
+                customWhiteButtons.isNotEmpty
+                    ? filteredButtons.isNotEmpty
+                    ? SizedBox(
+                  child: ListView.builder(
+                      itemCount: filteredButtons.length,
+                      physics: const NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      itemBuilder: (context, index) {
+                        return Padding(
+                          padding: EdgeInsets.only(top: 10.h),
+                          child: CustomWhiteButton(
+                            text: filteredButtons[index],
                             onTap: () {
-                              print(" 3 ");
-                              Get.to(() => const AdditionalView3(
-                                title: 'Private',
+                              Get.to(() => AdditionalView3(
+                                title: filteredButtons[index],
                               ));
                             },
                             onLongPress: () {
-                              print(" 4 ");
-
                               showDeleteConfirmationDialog(index);
                             },
-                            child: customWhiteButtons[index]),
-                      );
-                    },
-                  ),
-                ) : Text20(text: 'Please create folder first'),
-
-
-                // ListView.builder(
-                //   itemCount: customWhiteButtons.length,
-                //   physics: const NeverScrollableScrollPhysics(),
-                //   shrinkWrap: true,
-                //   itemBuilder: (context, index) {
-                //     return Padding(
-                //       padding: EdgeInsets.only(top: 10.h),
-                //       child: InkWell(
-                //           onTap: () {
-                //             Get.to(() => const AdditionalView3(
-                //                   title: 'Test Inc.',
-                //                 ));
-                //           },
-                //           onLongPress: (){
-                //             showDeleteConfirmationDialog(index);
-                //           },
-                //           child: customWhiteButtons[index]),
-                //     );
-                //   },
-                // ),
+                          ),
+                        );
+                      }),
+                )
+                    : SizedBox(
+                  child: ListView.builder(
+                      itemCount: customWhiteButtons.length,
+                      physics: const NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      itemBuilder: (context, index) {
+                        return Padding(
+                          padding: EdgeInsets.only(top: 10.h),
+                          child: CustomWhiteButton(
+                            text: customWhiteButtons[index],
+                            onTap: () {
+                              Get.to(() => AdditionalView3(
+                                title: customWhiteButtons[index],
+                              ));
+                            },
+                            onLongPress: () {
+                              showDeleteConfirmationDialog(index);
+                            },
+                          ),
+                        );
+                      }),
+                )
+                    : const Text20(text: 'Please create folder first'),
                 20.ht,
                 SizedBox(
                   width: 110.w,
@@ -285,94 +176,70 @@ class _AdditionalView2State extends State<AdditionalView2> {
 
   Future<void> showAlertDialog(BuildContext context) async {
     TextEditingController titleController = TextEditingController();
-    showDialog(
+    await showDialog(
       context: context,
-      builder: (context) {
-        return Dialog(
-          backgroundColor: whiteColor,
-          child: Container(
-            width: 200.w,
-            height: 200.h,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(15.r),
-              color: whiteColor,
-            ),
-            child: Padding(
-              padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 20.w),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(color: blackColor),
-                        borderRadius: BorderRadius.circular(15.r),
-                      ),
-                      padding: EdgeInsets.symmetric(horizontal: 8.w),
-                      child: TextFormField(
-                        controller: titleController,
-                        style: const TextStyle(color: blackColor),
-                        decoration: const InputDecoration(
-                          filled: true,
-                          hintText: "Enter folder name",
-                          fillColor: whiteColor,
-                          border: InputBorder.none,
-                        ),
-                      ),
-                    ),
+      builder: (context) => Dialog(
+        backgroundColor: whiteColor,
+        child: Container(
+          width: 200.w,
+          height: 200.h,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(15.r),
+            color: whiteColor,
+          ),
+          padding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 20.w),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15),
+                  border: Border.all(color: blackColor),
+                ),
+                padding: EdgeInsets.symmetric(horizontal: 8.w),
+                child: TextFormField(
+                  controller: titleController,
+                  style: const TextStyle(color: blackColor),
+                  decoration: const InputDecoration(
+                    filled: true,
+                    hintText: "Enter folder name",
+                    fillColor: whiteColor,
+                    border: InputBorder.none,
                   ),
-                  const Spacer(),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      SmallCustomButton(
-                        onTap: () {
+                ),
+              ),
+              const Spacer(),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  SmallCustomButton(
+                    onTap: () => Get.back(),
+                    title: 'Cancel',
+                  ),
+                  SmallCustomButton(
+                    onTap: () {
+                      newTitle = titleController.text.trim();
+                      if (!customWhiteButtons.contains(newTitle)) {
+                        setState(() {
+                          customWhiteButtons.add(newTitle);
                           Get.back();
-                        },
-                        title: 'Cancel',
-                      ),
-                      SmallCustomButton(
-                        onTap: () {
-                          String newTitle = titleController.text.trim();
-
-                          if (!customWhiteButtons.any((button) {
-                            if (button is Padding &&
-                                button.child is CustomWhiteButton) {
-                              return (button.child as CustomWhiteButton).text ==
-                                  newTitle;
-                            }
-                            return false;
-                          })) {
-                            setState(() {
-                              customWhiteButtons
-                                  .add(_buildFolderWidget(newTitle));
-                            });
-                            // saveFolders();
-                            Get.back();
-                          } else {
-                            AppConstants.errorToast(
-                              message:
-                                  "Button with title '$newTitle' already exists",
-                            );
-                          }
-
-                        },
-                        title: 'Create',
-                      ),
-                    ],
+                        });
+                      } else {
+                        AppConstants.errorToast(
+                          message: 'The folder with name $newTitle already exists',
+                        );
+                      }
+                    },
+                    title: 'Create',
                   ),
                 ],
               ),
-            ),
+            ],
           ),
-        );
-      },
+        ),
+      ),
     );
   }
-
 
   void showDeleteConfirmationDialog(int index) {
     showDialog(
@@ -380,32 +247,27 @@ class _AdditionalView2State extends State<AdditionalView2> {
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: whiteColor,
-          title: Text('Delete Folder'),
-          content: Text('Are you sure you want to delete this folder?'),
+          title: const Text('Delete Folder'),
+          content: const Text('Are you sure you want to delete this folder?'),
           actions: <Widget>[
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
             ),
             TextButton(
               onPressed: () {
-                // Remove the folder from the list
                 setState(() {
                   customWhiteButtons.removeAt(index);
                 });
-
-                // Save the updated list to SharedPreferences
-                // saveFolders();
-
-                Navigator.of(context).pop(); // Close the dialog
+                Navigator.of(context).pop();
               },
-              child: Text('Delete'),
+              child: const Text('Delete'),
             ),
           ],
         );
       },
-    );}
-
+    );
+  }
 }
