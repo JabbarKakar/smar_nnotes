@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
@@ -38,7 +39,9 @@ class _WorkbenchViewState extends State<WorkbenchView> {
 
   @override
   void dispose() {
-    controllers.forEach((controller) => controller.dispose());
+    for (var controller in controllers) {
+      controller.dispose();
+    }
     super.dispose();
   }
 
@@ -48,12 +51,8 @@ class _WorkbenchViewState extends State<WorkbenchView> {
       key: scaffoldKey,
       appBar: CustomAppBar(
         text: 'Workbench',
-        onTapMenu: () {
-          scaffoldKey.currentState!.openDrawer();
-        },
-        onTapProfile: () {
-          Get.to(() => const ProfileView());
-        },
+        onTapMenu: () => scaffoldKey.currentState!.openDrawer(),
+        onTapProfile: () => Get.to(() => const ProfileView()),
       ),
       drawer: const MainDrawer(),
       body: MainBodyContainer(
@@ -69,9 +68,7 @@ class _WorkbenchViewState extends State<WorkbenchView> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       SmallCustomButton(
-                        onTap: () {
-                          Get.back();
-                        },
+                        onTap: () => Get.back(),
                         title: 'Back',
                       ),
                       SmallCustomButton(
@@ -95,9 +92,7 @@ class _WorkbenchViewState extends State<WorkbenchView> {
                       itemBuilder: (context, index) {
                         return SmallTextFormField(
                           controllers: controllers[index],
-                          color: workbenchProvider.changeColor
-                              ? Colors.redAccent
-                              : whiteColor,
+                          color: workbenchProvider.textColor,
                           fontWeight: workbenchProvider.isBold
                               ? FontWeight.bold
                               : FontWeight.normal,
@@ -109,7 +104,6 @@ class _WorkbenchViewState extends State<WorkbenchView> {
                     ),
                   ),
                   10.ht,
-
                 ],
               );
             },
@@ -118,48 +112,79 @@ class _WorkbenchViewState extends State<WorkbenchView> {
       )),
       floatingActionButton: Padding(
         padding: EdgeInsets.only(left: 30.w),
-        child: Consumer<WorkbenchProvider>(builder: (context, workbenchProvider, child) {
-          return Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              DecorationButton(
-                onTap: () {},
-                icon: Icons.refresh,
-              ),
-              DecorationButton(
-                onTap: () {
-                  workbenchProvider.toggleBold();
-                },
-                icon: Icons.format_bold,
-              ),
-              DecorationButton(
-                onTap: () {
-                  workbenchProvider.textDecoration();
-                },
-                icon: Icons.format_underline,
-              ),
-              DecorationButton(
-                onTap: () {
-                  workbenchProvider.changeColor1();
-                },
-                icon: Icons.brush,
-              ),
-              DecorationButton(
-                onTap: () {},
-                icon: Icons.list,
-              ),
-              DecorationButton(
-                onTap: () {},
-                icon: Icons.more_horiz,
-              ),
-              DecorationButton(
-                onTap: () {},
-                icon: Icons.ac_unit,
-              ),
-            ],
-          );
-        },),
+        child: Consumer<WorkbenchProvider>(
+          builder: (context, workbenchProvider, child) {
+            return Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                DecorationButton(
+                  onTap: () {},
+                  icon: Icons.refresh,
+                ),
+                DecorationButton(
+                  onTap: () {
+                    workbenchProvider.toggleBold();
+                  },
+                  icon: Icons.format_bold,
+                ),
+                DecorationButton(
+                  onTap: () {
+                    workbenchProvider.textDecoration();
+                  },
+                  icon: Icons.format_underline,
+                ),
+                DecorationButton(
+                  onTap: () {
+                    _showColorPickerDialog(
+                        context);
+                  },
+                  icon: Icons.brush,
+                ),
+                DecorationButton(
+                  onTap: () {},
+                  icon: Icons.list,
+                ),
+                DecorationButton(
+                  onTap: () {},
+                  icon: Icons.more_horiz,
+                ),
+                DecorationButton(
+                  onTap: () {},
+                  icon: Icons.ac_unit,
+                ),
+              ],
+            );
+          },
+        ),
       ),
+    );
+  }
+
+  void _showColorPickerDialog(BuildContext context) {
+    WorkbenchProvider colorProvider =
+        Provider.of<WorkbenchProvider>(context, listen: false);
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: Colors.grey,
+          title: const Text('Pick a color for text!'),
+          content: SingleChildScrollView(
+            child: ColorPicker(
+              pickerColor: colorProvider.textColor,
+              onColorChanged: (color) => colorProvider.changeTextColor(color),
+            ),
+          ),
+          actions: <Widget>[
+            ElevatedButton(
+              child: const Text('Got it'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }
@@ -184,7 +209,7 @@ class SmallTextFormField extends StatelessWidget {
       child: TextFormField(
         controller: controllers,
         style: TextStyle(
-            color: color, fontWeight: fontWeight, decoration: decoration),
+            color: color, fontWeight: fontWeight, decoration: decoration, decorationColor: whiteColor),
         decoration: const InputDecoration(border: InputBorder.none),
       ),
     );

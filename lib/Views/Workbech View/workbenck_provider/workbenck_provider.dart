@@ -26,4 +26,17 @@ class WorkbenchProvider extends ChangeNotifier{
     notifyListeners();
   }
 
+
+  Color textColor = Colors.white;
+  // late int currentIndex; // New property to store the current index
+
+  void changeTextColor(Color color) {
+    textColor = color;
+    notifyListeners();
+  }
+
+  // void setCurrentIndex(int index) {
+  //   currentIndex = index;
+  // }
+
 }
